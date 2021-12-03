@@ -2,16 +2,6 @@ package be.rlab.aoc2021.challenge
 
 import be.rlab.aoc2021.support.ResourceUtils.loadInput
 
-fun filterOut(
-    samples: MutableList<String>,
-    position: Int,
-    bitValue: Int
-) {
-    samples.removeIf { line ->
-        line[position].digitToInt() == bitValue
-    }
-}
-
 data class BinaryCounter(
     val zeros: IntArray,
     val ones: IntArray
@@ -31,17 +21,6 @@ data class BinaryCounter(
             0 -> zeros[bitPosition] += 1
             1 -> ones[bitPosition] += 1
         }
-    }
-}
-
-fun countBits(binaryNumbers: List<String>): BinaryCounter {
-    return binaryNumbers.fold(
-        BinaryCounter.new(binaryNumbers.first().length)
-    ) { counter, binaryNumber ->
-        binaryNumber.forEachIndexed { bitPosition, char ->
-            counter.increment(bitPosition, char.digitToInt())
-        }
-        counter
     }
 }
 
@@ -67,14 +46,24 @@ fun lifeSupportRating(
     (0 until bitCount).forEach { bitPosition ->
         val counter = countBits(samples)
         if (samples.size > 1) {
-            filterOut(
-                samples,
-                bitPosition,
-                bitValue = filterBit(counter.zeros[bitPosition], counter.ones[bitPosition])
-            )
+            val bitValue = filterBit(counter.zeros[bitPosition], counter.ones[bitPosition])
+            samples.removeIf { line ->
+                line[bitPosition].digitToInt() == bitValue
+            }
         }
     }
     return samples.first().toInt(2)
+}
+
+fun countBits(binaryNumbers: List<String>): BinaryCounter {
+    return binaryNumbers.fold(
+        BinaryCounter.new(binaryNumbers.first().length)
+    ) { counter, binaryNumber ->
+        binaryNumber.forEachIndexed { bitPosition, char ->
+            counter.increment(bitPosition, char.digitToInt())
+        }
+        counter
+    }
 }
 
 fun main() {
