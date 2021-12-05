@@ -55,7 +55,7 @@ fun countIntersections(lines: List<Line>): Int {
         }
         results
     }
-    return pointIntersections.count { (_, value) -> value > 1 }
+    return pointIntersections.values.count { value -> value > 1 }
 }
 
 fun main() {
@@ -67,10 +67,10 @@ fun main() {
             end = Point(values[3].toInt(), values[4].toInt())
         )
     }
-    val rectLines = lines.filter { line ->
+    val axisAlignedLines = lines.filter { line ->
         line.start.x == line.end.x || line.start.y == line.end.y
     }
-    println("rect lines intersections: ${countIntersections(rectLines)}")
+    println("axis aligned lines intersections: ${countIntersections(axisAlignedLines)}")
     println("all lines intersections: ${countIntersections(lines)}")
     println("took ${System.currentTimeMillis() - startTime}ms")
 }
