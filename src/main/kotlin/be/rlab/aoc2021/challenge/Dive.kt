@@ -2,6 +2,16 @@ package be.rlab.aoc2021.challenge
 
 import be.rlab.aoc2021.support.ResourceUtils.loadInput
 
+/** Day 2: Dive!
+ *
+ * This challenge is a sort of state machine. You have to move your Submarine in three directions:
+ * forward, down, and up.
+ *
+ * In this solution the Submarine runs the program provided by the puzzle input. Each
+ * operation to move the submarine performs the changes in the internal parameters:
+ * depth, positionX and aim.
+ */
+
 class Submarine(
     var depth: Int,
     var positionX: Int,
