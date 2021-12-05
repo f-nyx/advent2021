@@ -2,15 +2,41 @@ package be.rlab.aoc2021.challenge
 
 import be.rlab.aoc2021.support.ResourceUtils.loadInput
 
+/** Day 3: Binary Diagnostic
+ *
+ * This challenge is about counting bits. Given a list of binary numbers, you need to take
+ * decisions based on how often a bit (0 or 1) appear in a position.
+ *
+ * The solution is based on a [BinaryCounter], a component that simplifies counting bits.
+ * For each binary number in the input, the binary counter will store how often a bit (0 or 1)
+ * appears in a position. This relies on all numbers having the same length, which is true for
+ * the puzzle input (12 bits).
+ *
+ * Once the BinaryCounter does its work, the rest of the solution is about comparing and filtering
+ * the results.
+ */
+
+
 data class BinaryCounter(
     val zeros: IntArray,
     val ones: IntArray
 ) {
     companion object {
-        fun new(size: Int): BinaryCounter = BinaryCounter(
-            zeros = "0".repeat(size).map(Char::digitToInt).toIntArray(),
-            ones = "0".repeat(size).map(Char::digitToInt).toIntArray()
-        )
+        fun countBits(binaryNumbers: List<String>): BinaryCounter {
+            val size = binaryNumbers.first().length
+
+            return binaryNumbers.fold(
+                BinaryCounter(
+                    zeros = "0".repeat(size).map(Char::digitToInt).toIntArray(),
+                    ones = "0".repeat(size).map(Char::digitToInt).toIntArray()
+                )
+            ) { counter, binaryNumber ->
+                binaryNumber.forEachIndexed { bitPosition, char ->
+                    counter.increment(bitPosition, char.digitToInt())
+                }
+                counter
+            }
+        }
     }
 
     fun increment(
@@ -28,7 +54,7 @@ fun powerConsumptionRating(
     report: List<String>,
     resolveBit: (Int, Int) -> Int
 ): Int {
-    val counter = countBits(report)
+    val counter = BinaryCounter.countBits(report)
     val bitCount = report.first().length
 
     return (0 until bitCount).map { bitPosition ->
@@ -44,7 +70,7 @@ fun lifeSupportRating(
     val bitCount = report.first().length
 
     (0 until bitCount).forEach { bitPosition ->
-        val counter = countBits(samples)
+        val counter = BinaryCounter.countBits(samples)
         if (samples.size > 1) {
             val bitValue = filterBit(counter.zeros[bitPosition], counter.ones[bitPosition])
             samples.removeIf { line ->
@@ -53,17 +79,6 @@ fun lifeSupportRating(
         }
     }
     return samples.first().toInt(2)
-}
-
-fun countBits(binaryNumbers: List<String>): BinaryCounter {
-    return binaryNumbers.fold(
-        BinaryCounter.new(binaryNumbers.first().length)
-    ) { counter, binaryNumber ->
-        binaryNumber.forEachIndexed { bitPosition, char ->
-            counter.increment(bitPosition, char.digitToInt())
-        }
-        counter
-    }
 }
 
 fun main() {
