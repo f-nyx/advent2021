@@ -11,3 +11,5 @@
 [Day 5: Hydrothermal Venture](https://github.com/f-nyx/advent2021/blob/main/src/main/kotlin/be/rlab/aoc2021/challenge/HydrothermalVenture.kt)
 
 [Day 6: Lanternfish](https://github.com/f-nyx/advent2021/blob/main/src/main/kotlin/be/rlab/aoc2021/challenge/Lanternfish.kt)
+
+[Day 7: The Treachery of Whales](https://github.com/f-nyx/advent2021/blob/main/src/main/kotlin/be/rlab/aoc2021/challenge/WhalesAttack.kt)
