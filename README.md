@@ -13,3 +13,5 @@
 [Day 6: Lanternfish](https://github.com/f-nyx/advent2021/blob/main/src/main/kotlin/be/rlab/aoc2021/challenge/Lanternfish.kt)
 
 [Day 7: The Treachery of Whales](https://github.com/f-nyx/advent2021/blob/main/src/main/kotlin/be/rlab/aoc2021/challenge/WhalesAttack.kt)
+
+[Day 9: Smoke Basin](https://github.com/f-nyx/advent2021/blob/main/src/main/kotlin/be/rlab/aoc2021/challenge/SmokeBasin.kt)
