@@ -6,11 +6,11 @@ import be.rlab.aoc2021.support.ResourceUtils
  *
  * This challenge is about parsing a regular language.
  *
- * The solution uses a classic parsing strategy. Symbols have opening and closing characters. The parser
- * pushes the symbol to a stack when it detects an opening character, and it removes the symbol from the stack
- * when it finds a closing character for the symbol.
+ * The solution uses a classic parsing strategy. Symbols have opening and closing tokens. The parser
+ * pushes the symbol to a stack when it detects an opening token, and it removes the symbol from the stack
+ * when it finds a closing token for the same symbol.
  *
- * For the first part, a syntax is invalid when a closing character is not from the symbol at the head of the stack.
+ * For the first part, a syntax is invalid when a closing token is not from the symbol at the head of the stack.
  *
  * For the second part, we discard invalid lines and once a valid line is parsed, the stack will still contain
  * the symbols that need to be closed.
@@ -28,10 +28,10 @@ sealed class Symbol(
     object Parentheses : Symbol('(', ')', parsingScore = 3, autoCompleteScore = 1)
 
     companion object {
-        fun from(char: Char): Symbol {
+        fun from(token: Char): Symbol {
             return listOf(Bracket, SquareBracket, AngleBracket, Parentheses).find { symbol ->
-                symbol.opening == char || symbol.closing == char
-            } ?: throw RuntimeException("syntax error, symbol not found: $char")
+                symbol.opening == token || symbol.closing == token
+            } ?: throw RuntimeException("syntax error, symbol not found for token: $token")
         }
     }
 }
@@ -44,10 +44,10 @@ class Parser {
      * @return the first invalid symbol, if any.
      */
     fun parse(line: String): Symbol? {
-        val invalidSymbolIndex = line.indexOfFirst { char ->
-            val symbol = Symbol.from(char)
+        val invalidSymbolIndex = line.indexOfFirst { token ->
+            val symbol = Symbol.from(token)
 
-            if (symbol.opening == char) {
+            if (symbol.opening == token) {
                 symbols.addFirst(symbol)
                 false
             } else {

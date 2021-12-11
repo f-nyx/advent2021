@@ -1,5 +1,6 @@
 package be.rlab.aoc2021.challenge
 
+import be.rlab.aoc2021.support.Point
 import be.rlab.aoc2021.support.ResourceUtils.loadInput
 
 /** Day 9: Smoke Basin
@@ -10,13 +11,13 @@ import be.rlab.aoc2021.support.ResourceUtils.loadInput
  * The plane is a map, and the points represent heights of the terrain.
  *
  * In the first part we need to find "holes", terrains (points) that are surrounded by higher terrains. It
- * implies resolving all sibling terrains (left, right, top, bottom) for each terrain in the map, and count
- * those that are lower than the siblings.
+ * implies resolving all neighbor terrains (left, right, top, bottom) for each terrain in the map, and count
+ * those that are lower than the neighbors.
  *
  * The second part is about finding "basins". A basin is the group of terrains that "flows" to a lower terrain.
  * Think of the basin as all the terrains that have a descending slope to the lower terrain, like a river that flows
  * from a higher to a lower terrain. The higher value for a terrain height is 9 (the peek), so this algorithm
- * searches from the lower terrain through all the siblings recursively until it finds the peek.
+ * searches from the lower terrain through all the neighbors recursively until it finds the peek.
  */
 
 const val TERRAIN_PEEK: Int = 9
@@ -32,8 +33,8 @@ data class HeightMap(
     private val points: List<Terrain>
 ) {
     val lowPoints: List<Terrain> get() = points.mapIndexedNotNull { index, point ->
-        val siblings: List<Terrain> = findSiblings(index)
-        if (point.height < siblings.minOfOrNull { it.height }!!) {
+        val neighbors: List<Terrain> = findNeighbors(index)
+        if (point.height < neighbors.minOfOrNull { it.height }!!) {
             point
         } else {
             null
@@ -42,47 +43,24 @@ data class HeightMap(
 
     fun basinSize(
         terrain: Terrain,
-        knownSiblings: MutableSet<Int> = mutableSetOf()
+        knownNeighbors: MutableSet<Int> = mutableSetOf()
     ): Int {
-        val siblings: List<Terrain> = findSiblings(terrain.index).filter { sibling ->
-            sibling.height < TERRAIN_PEEK && !knownSiblings.contains(sibling.index)
+        val neighbors: List<Terrain> = findNeighbors(terrain.index).filter { neighbor ->
+            neighbor.height < TERRAIN_PEEK && !knownNeighbors.contains(neighbor.index)
         }
-        knownSiblings += (knownSiblings + siblings.map { it.index }) + terrain.index
+        knownNeighbors += (knownNeighbors + neighbors.map { it.index }) + terrain.index
 
-        return siblings.sumOf { sibling ->
-            1 + basinSize(sibling, knownSiblings)
-        }
-    }
-
-    private fun findSiblings(index: Int): List<Terrain> {
-        val row: Int = index / columnCount
-        val column: Int = index % columnCount
-
-        return when {
-            // top left corner
-            row == 0 && column == 0 -> getPoints(index + 1, index + columnCount)
-            // top right
-            row == 0 && column == columnCount - 1 -> getPoints(index - 1, index + columnCount)
-            // top
-            row == 0 -> getPoints(index - 1, index + 1, index + columnCount)
-            // bottom left
-            row == rowCount - 1 && column == 0 -> getPoints(index - columnCount, index + 1)
-            // bottom right
-            row == rowCount - 1 && column == columnCount - 1 -> getPoints(index - 1, index - columnCount)
-            // bottom
-            row == rowCount - 1 -> getPoints(index - 1, index + 1, index - columnCount)
-            // any other left edge
-            column == 0 -> getPoints(index + 1, index - columnCount, index + columnCount)
-            // any other right edge
-            column == columnCount - 1 -> getPoints(index - 1, index + columnCount, index - columnCount)
-            // any point in the middle
-            else -> getPoints(index + 1, index - 1, index + columnCount, index - columnCount)
+        return neighbors.sumOf { neighbor ->
+            1 + basinSize(neighbor, knownNeighbors)
         }
     }
 
-    private fun getPoints(vararg indexes: Int): List<Terrain> {
-        return indexes.map { index ->
-            points[index]
+    private fun findNeighbors(index: Int): List<Terrain> {
+        return Point.neighbors(
+            point = Point(columnCount, rowCount, index),
+            vertices = false
+        ).map { neighbor ->
+            points[neighbor.index]
         }
     }
 }

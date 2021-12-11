@@ -17,3 +17,5 @@
 [Day 9: Smoke Basin](https://github.com/f-nyx/advent2021/blob/main/src/main/kotlin/be/rlab/aoc2021/challenge/SmokeBasin.kt)
 
 [Day 10: Syntax Scoring](https://github.com/f-nyx/advent2021/blob/main/src/main/kotlin/be/rlab/aoc2021/challenge/SyntaxScoring.kt)
+
+[Day 11: Dumbo Octopus](https://github.com/f-nyx/advent2021/blob/main/src/main/kotlin/be/rlab/aoc2021/challenge/DumboOctopus.kt)
