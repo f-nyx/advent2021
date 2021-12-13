@@ -19,3 +19,5 @@
 [Day 10: Syntax Scoring](https://github.com/f-nyx/advent2021/blob/main/src/main/kotlin/be/rlab/aoc2021/challenge/SyntaxScoring.kt)
 
 [Day 11: Dumbo Octopus](https://github.com/f-nyx/advent2021/blob/main/src/main/kotlin/be/rlab/aoc2021/challenge/DumboOctopus.kt)
+
+[Day 13: Transparent Origami](https://github.com/f-nyx/advent2021/blob/main/src/main/kotlin/be/rlab/aoc2021/challenge/TransparentOrigami.kt)
