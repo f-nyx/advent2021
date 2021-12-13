@@ -1,7 +1,9 @@
 package be.rlab.aoc2021.challenge
 
-import be.rlab.aoc2021.support.Point
+import be.rlab.aoc2021.support.SquareGrid
 import be.rlab.aoc2021.support.ResourceUtils.loadInput
+import be.rlab.aoc2021.support.SearchUtils.breadthFirstSearch
+import be.rlab.aoc2021.support.Tile
 
 /** Day 9: Smoke Basin
  *
@@ -24,43 +26,34 @@ const val TERRAIN_PEEK: Int = 9
 
 data class Terrain(
     val height: Int,
-    val index: Int
+    val tile: Tile
 )
 
-data class HeightMap(
-    private val columnCount: Int,
-    private val rowCount: Int,
-    private val points: List<Terrain>
-) {
-    val lowPoints: List<Terrain> get() = points.mapIndexedNotNull { index, point ->
-        val neighbors: List<Terrain> = findNeighbors(index)
-        if (point.height < neighbors.minOfOrNull { it.height }!!) {
-            point
-        } else {
-            null
+class HeightMap(
+    width: Int,
+    height: Int,
+    private val terrains: List<Terrain>
+) : SquareGrid(width, height) {
+    val lowPoints: List<Terrain> by lazy {
+        terrains.filter { terrain ->
+            val neighbors: List<Terrain> = findNeighbors(terrain)
+            terrain.height < neighbors.minOfOrNull { it.height }!!
         }
     }
 
-    fun basinSize(
-        terrain: Terrain,
-        knownNeighbors: MutableSet<Int> = mutableSetOf()
-    ): Int {
-        val neighbors: List<Terrain> = findNeighbors(terrain.index).filter { neighbor ->
-            neighbor.height < TERRAIN_PEEK && !knownNeighbors.contains(neighbor.index)
-        }
-        knownNeighbors += (knownNeighbors + neighbors.map { it.index }) + terrain.index
-
-        return neighbors.sumOf { neighbor ->
-            1 + basinSize(neighbor, knownNeighbors)
-        }
+    fun basinSize(terrain: Terrain): Int {
+        val visitedTerrains = breadthFirstSearch(
+            this,
+            start = terrain.tile,
+            accepts = { tile -> terrains[tile.translateToIndex(width)].height < TERRAIN_PEEK }
+        )
+        return visitedTerrains.size
     }
 
-    private fun findNeighbors(index: Int): List<Terrain> {
-        return Point.neighbors(
-            point = Point(columnCount, rowCount, index),
-            vertices = false
-        ).map { neighbor ->
-            points[neighbor.index]
+
+    private fun findNeighbors(terrain: Terrain): List<Terrain> {
+        return neighbors(terrain.tile).map { tile ->
+            terrains[tile.translateToIndex(width)]
         }
     }
 }
@@ -68,21 +61,31 @@ data class HeightMap(
 fun main() {
     val start = System.currentTimeMillis()
     val lines = loadInput("09-smoke-basin.txt").split("\n")
+    val width: Int = lines[0].length
     val heightMap = HeightMap(
-        columnCount = lines[0].length,
-        rowCount = lines.size,
-        points = lines.flatMap { line ->
+        width = width,
+        height = lines.size,
+        terrains = lines.flatMap { line ->
             line.split("").filter { it.isNotEmpty() }.map { digit -> digit.toInt() }
-        }.mapIndexed { index, height -> Terrain(height, index) }
+        }.mapIndexed { index, height ->
+            val x: Int = index % width
+            val y: Int = index / width
+            Terrain(height, Tile(x, y))
+        }
     )
+
     val totalLowPoints = heightMap.lowPoints.sumOf { terrain ->
         terrain.height + 1
     }
     val basinSizes = heightMap.lowPoints.map { terrain ->
-        heightMap.basinSize(terrain) + 1
+        heightMap.basinSize(terrain)
     }.sortedDescending()
+    val largestBasins = basinSizes[0] * basinSizes[1] * basinSizes[2]
+
+    assert(totalLowPoints == 417)
+    assert(largestBasins == 1148965)
 
     println("total low points: $totalLowPoints")
-    println("largest basins: ${basinSizes[0] * basinSizes[1] * basinSizes[2]}")
+    println("largest basins: $largestBasins")
     println("${System.currentTimeMillis() - start}ms")
 }

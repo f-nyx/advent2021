@@ -1,8 +1,8 @@
 package be.rlab.aoc2021.challenge
 
-import be.rlab.aoc2021.support.Point.Companion.neighbors
-import be.rlab.aoc2021.support.Point as PlanePoint
+import be.rlab.aoc2021.support.SquareGrid
 import be.rlab.aoc2021.support.ResourceUtils
+import be.rlab.aoc2021.support.Tile
 
 /** Day 11: Dumbo Octopus
  *
@@ -26,7 +26,7 @@ import be.rlab.aoc2021.support.ResourceUtils
 const val MAX_ENERGY_LEVEL = 9
 
 data class Octopus(
-    val index: Int,
+    val tile: Tile,
     var energyLevel: Int
 ) {
     fun inc(): Boolean {
@@ -43,19 +43,27 @@ data class Octopus(
     }
 }
 
-data class OctopusMap(
-    private val width: Int,
-    private val height: Int,
+class OctopusMap(
+    width: Int,
+    height: Int,
     private val octopuses: List<Octopus>
-) {
+): SquareGrid(width, height, includeVertices = true) {
     companion object {
-        fun from(lines: List<String>): OctopusMap = OctopusMap(
-            width = lines[0].length,
-            height = lines.size,
-            octopuses = lines.flatMap { line ->
-                line.split("").filter { it.isNotEmpty() }.map { digit -> digit.toInt() }
-            }.mapIndexed { index, energyLevel -> Octopus(index, energyLevel) }
-        )
+        fun from(lines: List<String>): OctopusMap {
+            val width: Int = lines[0].length
+
+            return OctopusMap(
+                width = width,
+                height = lines.size,
+                octopuses = lines.flatMap { line ->
+                    line.split("").filter { it.isNotEmpty() }.map { digit -> digit.toInt() }
+                }.mapIndexed { index, energyLevel ->
+                    val x: Int = index % width
+                    val y: Int = index / width
+                    Octopus(Tile(x, y), energyLevel)
+                }
+            )
+        }
     }
 
     fun nextStep(): Int {
@@ -87,11 +95,8 @@ data class OctopusMap(
     }
 
     private fun findNeighbors(octopus: Octopus): List<Octopus> {
-        return neighbors(
-            point = PlanePoint(width, height, octopus.index),
-            vertices = true
-        ).map { neighbor ->
-            octopuses[neighbor.index]
+        return neighbors(octopus.tile).map { neighbor ->
+            octopuses[neighbor.translateToIndex(width)]
         }
     }
 }
